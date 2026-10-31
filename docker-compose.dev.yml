@@ -1,0 +1,50 @@
+services:
+  backend:
+    image: golang:1.22-alpine
+    container_name: taxilux-backend
+    working_dir: /src
+    command: go run ./cmd/server
+    env_file:
+      - .env
+    environment:
+      MIGRATIONS_DIR: /src/migrations
+    volumes:
+      - ./backend:/src:ro
+      - taxilux_data:/data
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    container_name: taxilux-frontend
+    working_dir: /src
+    command: sh -c "npm ci && npx astro dev --host 0.0.0.0 --port 4321"
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/src:ro
+      - node_modules:/src/node_modules
+    ports:
+      - "4321:4321"
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: taxilux-caddy
+    ports:
+      - "80:80"
+    volumes:
+      - ./caddy/Caddyfile.dev:/etc/caddy/Caddyfile:ro
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: taxilux-mailpit
+    ports:
+      - "8025:8025"
+    restart: unless-stopped
+
+volumes:
+  taxilux_data:
+  node_modules:

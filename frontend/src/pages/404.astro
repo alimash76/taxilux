@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getStrings, type Lang } from '../i18n';
+
+const paramsLang = (Astro.params as unknown as { lang?: Lang }).lang;
+const lang: Lang = paramsLang === 'en' ? 'en' : 'nl';
+const s = getStrings(lang);
+---
+
+<Layout lang={lang} title={s.notFound}>
+  <h1>{s.notFound}</h1>
+  <p>
+    <a href="/nl/">Terug naar de startpagina · Back to home</a>
+  </p>
+</Layout>

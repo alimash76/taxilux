@@ -1,0 +1,2 @@
+-- Initial schema migration (intentionally empty placeholder).
+-- Future migrations add tables here; never edit applied migrations.

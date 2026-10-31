@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import { getStrings, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  title: string;
+}
+
+const { lang, title } = Astro.props;
+const s = getStrings(lang);
+
+const otherLang: Lang = lang === 'nl' ? 'en' : 'nl';
+const otherHref = new URL(
+  Astro.url.pathname.replace(new RegExp(`/${lang}/`), `/${otherLang}/`),
+  Astro.url.origin,
+).href;
+
+const siteName = '{{COMPANY_NAME}}';
+const tagline = '{{COMPANY_TAGLINE}}';
+const phone = '{{COMPANY_PHONE}}';
+const email = '{{COMPANY_EMAIL}}';
+---
+
+<!DOCTYPE html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · {siteName}</title>
+    <link rel="alternate" hreflang={lang} href={Astro.url.href} />
+    <link rel="alternate" hreflang={otherLang} href={otherHref} />
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Naar inhoud · Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrapper">
+        <a href="/{lang}/" class="brand" aria-label={siteName}>{siteName}</a>
+        <button class="lang-switch" formaction="/{otherLang}/">{s.languageSwitch}</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrapper">
+        <p>{siteName} · {tagline}</p>
+        <p>
+          <a href={`tel:${phone}`}>{phone}</a>
+          ·
+          <a href={`mailto:${email}`}>{email}</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
