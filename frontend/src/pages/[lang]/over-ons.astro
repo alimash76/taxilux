@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.aboutTitle} active="about">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName}</h1>
+      <p>{s.aboutIntro}</p>
+
+      <h2>{s.aboutVisionTitle}</h2>
+      <p>{s.aboutVision}</p>
+
+      <h2>{s.aboutMissionTitle}</h2>
+      <p>{s.aboutMission}</p>
+
+      <h2>{s.aboutGoalsTitle}</h2>
+      <ul>
+        {s.aboutGoals.map((goal) => `<li>${goal}</li>`).join('')}
+      </ul>
+
+      <h2>{s.aboutLegalTitle}</h2>
+      <p>{s.aboutLegalKvK}</p>
+      <p>{s.aboutLegalBtw}</p>
+      <p>{s.aboutLegalTax}</p>
+    </div>
+  </section>
+</Layout>

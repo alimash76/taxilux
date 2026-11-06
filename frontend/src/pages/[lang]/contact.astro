@@ -1,0 +1,127 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+const address = '{{COMPANY_ADDRESS}}';
+const postalCode = '{{COMPANY_POSTAL_CODE}}';
+const city = '{{COMPANY_CITY}}';
+const phone = '{{COMPANY_PHONE}}';
+const email = '{{COMPANY_EMAIL}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.contactTitle} active="contact">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.contactTitle}</h1>
+      <p>{s.contactIntro}</p>
+      <p>
+        <strong>{siteName}</strong><br />
+        {address}<br />
+        {postalCode} {city}<br />
+        Nederland
+      </p>
+      <p>
+        <a href={`tel:${phone}`}>{s.phone}: {phone}</a><br />
+        <a href={`mailto:${email}`}>{s.email}: {email}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrapper">
+      <h2>{s.contactTitle}</h2>
+      <form id="contact-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="name">{s.formNameLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="text" id="name" name="name" placeholder={s.formNamePlaceholder} required minlength="2" maxlength="100" />
+            <p class="error" id="error-name" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="email">{s.formEmailLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="email" id="email" name="email" placeholder={s.formEmailPlaceholder} required maxlength="200" />
+            <p class="error" id="error-email" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="message">Bericht <span style="color:var(--color-error);">*</span></label>
+            <textarea id="message" name="message" required placeholder="Uw vraag of opmerking" maxlength="2000"></textarea>
+            <p class="error" id="error-message" aria-live="polite"></p>
+          </div>
+          <div class="field consent">
+            <input type="checkbox" id="privacy_consent" name="privacy_consent" required />
+            <label for="privacy_consent">{s.formConsentLabel} <span style="color:var(--color-error);">*</span></label>
+            <p class="error" id="error-privacy_consent" aria-live="polite"></p>
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <button type="submit" class="button button-primary">{s.formSubmit}</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="form-notice" class="notice error" style="display:none;" role="alert" aria-live="assertive">
+        <p>{s.formNotConnected}</p>
+      </div>
+      <div id="form-success" class="notice success" style="display:none;" role="status" aria-live="polite">
+        <p>{s.formSuccess}</p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var form = document.getElementById('contact-form');
+      var notice = document.getElementById('form-notice');
+      var success = document.getElementById('form-success');
+      if (!form || !notice || !success) return;
+      var fields = ['name', 'email', 'message', 'privacy_consent'];
+
+      function showError(field, message) {
+        var err = document.getElementById('error-' + field);
+        var el = document.getElementById(field);
+        if (!el || !err) return;
+        el.classList.add('error');
+        err.textContent = message;
+      }
+      function clearError(field) {
+        var err = document.getElementById('error-' + field);
+        var el = document.getElementById(field);
+        if (!el || !err) return;
+        el.classList.remove('error');
+        err.textContent = '';
+      }
+      function clearAll() { fields.forEach(clearError); }
+      function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        clearAll();
+        var valid = true;
+        var nameEl = document.getElementById('name');
+        var emailEl = document.getElementById('email');
+        var messageEl = document.getElementById('message');
+        var consentEl = document.getElementById('privacy_consent');
+        if (!nameEl || !nameEl.value.trim()) { showError('name', s.formErrorRequired); valid = false; }
+        if (!emailEl || !emailEl.value.trim()) { showError('email', s.formErrorRequired); valid = false; }
+        else if (!validateEmail(emailEl.value)) { showError('email', s.formErrorEmail); valid = false; }
+        if (!messageEl || !messageEl.value.trim()) { showError('message', s.formErrorRequired); valid = false; }
+        if (!consentEl || !consentEl.checked) { showError('privacy_consent', s.formErrorConsent); valid = false; }
+        if (!valid) return;
+        form.reset();
+        notice.style.display = 'block';
+        success.style.display = 'none';
+        notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    })();
+  </script>
+</Layout>

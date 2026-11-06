@@ -1,0 +1,48 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.tripTypesTitle} active="trip-types">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.tripTypesTitle}</h1>
+      <p>{s.tripTypesIntro}</p>
+
+      <div class="card-grid">
+        <article class="card">
+          <h3>{s.cityTitle}</h3>
+          <p>{s.cityDesc}</p>
+        </article>
+        <article class="card">
+          <h3>{s.airportTitle}</h3>
+          <p>{s.airportDesc}</p>
+        </article>
+        <article class="card">
+          <h3>{s.prebookedTitle}</h3>
+          <p>{s.prebookedDesc}</p>
+        </article>
+        <article class="card">
+          <h3>{s.corporateTitle}</h3>
+          <p>{s.corporateDesc}</p>
+        </article>
+        <article class="card">
+          <h3>{s.intercityTitle}</h3>
+          <p>{s.intercityDesc}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</Layout>

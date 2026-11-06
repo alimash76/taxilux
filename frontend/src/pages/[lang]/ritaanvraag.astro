@@ -1,0 +1,166 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.formRideTitle} active="book">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.formRideTitle}</h1>
+      <p>{s.formRideIntro}</p>
+
+      <form id="ride-request-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="name">{s.formNameLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="text" id="name" name="name" placeholder={s.formNamePlaceholder} required minlength="2" maxlength="100" />
+            <p class="error" id="error-name" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="phone">{s.formPhoneLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="tel" id="phone" name="phone" placeholder={s.formPhonePlaceholder} required maxlength="20" />
+            <p class="error" id="error-phone" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="email">{s.formEmailLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="email" id="email" name="email" placeholder={s.formEmailPlaceholder} required maxlength="200" />
+            <p class="error" id="error-email" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="pickup_address">{s.formPickupLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="text" id="pickup_address" name="pickup_address" placeholder={s.formPickupPlaceholder} required maxlength="200" />
+            <p class="error" id="error-pickup_address" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="destination">{s.formDestinationLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="text" id="destination" name="destination" placeholder={s.formDestinationPlaceholder} required maxlength="200" />
+            <p class="error" id="error-destination" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="pickup_at">{s.formPickupAtLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="datetime-local" id="pickup_at" name="pickup_at" required />
+            <p class="error" id="error-pickup_at" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="trip_type">{s.formTripTypeLabel} <span style="color:var(--color-error);">*</span></label>
+            <select id="trip_type" name="trip_type" required>
+              <option value="">—</option>
+              <option value="city">{s.formTripTypeCity}</option>
+              <option value="airport">{s.formTripTypeAirport}</option>
+              <option value="prebooked">{s.formTripTypePrebooked}</option>
+              <option value="corporate">{s.formTripTypeCorporate}</option>
+              <option value="intercity">{s.formTripTypeIntercity}</option>
+            </select>
+            <p class="error" id="error-trip_type" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="passengers">{s.formPassengersLabel}</label>
+            <input type="number" id="passengers" name="passengers" min="1" max="8" value="1" />
+            <p class="error" id="error-passengers" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="notes">{s.formNotesLabel}</label>
+            <textarea id="notes" name="notes" placeholder={s.formNotesPlaceholder} maxlength="1000"></textarea>
+            <p class="error" id="error-notes" aria-live="polite"></p>
+          </div>
+          <div class="field consent">
+            <input type="checkbox" id="privacy_consent" name="privacy_consent" required />
+            <label for="privacy_consent">{s.formConsentLabel} <span style="color:var(--color-error);">*</span></label>
+            <p class="error" id="error-privacy_consent" aria-live="polite"></p>
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <button type="submit" class="button button-primary">{s.formSubmit}</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="form-notice" class="notice error" style="display:none;" role="alert" aria-live="assertive">
+        <p>{s.formNotConnected}</p>
+      </div>
+      <div id="form-success" class="notice success" style="display:none;" role="status" aria-live="polite">
+        <p>{s.formSuccess}</p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var form = document.getElementById('ride-request-form');
+      var notice = document.getElementById('form-notice');
+      var success = document.getElementById('form-success');
+      if (!form || !notice || !success) return;
+      var fields = ['name', 'phone', 'email', 'pickup_address', 'destination', 'pickup_at', 'trip_type', 'passengers', 'notes', 'privacy_consent'];
+
+      function showError(field, message) {
+        var err = document.getElementById('error-' + field);
+        var el = document.getElementById(field);
+        if (!el || !err) return;
+        el.classList.add('error');
+        err.textContent = message;
+      }
+      function clearError(field) {
+        var err = document.getElementById('error-' + field);
+        var el = document.getElementById(field);
+        if (!el || !err) return;
+        el.classList.remove('error');
+        err.textContent = '';
+      }
+      function clearAll() { fields.forEach(clearError); }
+      function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+      function validatePhone(v) { return /^[\d\s\+\(\)-]{6,}$/.test(v.replace(/\s/g, '')); }
+
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        clearAll();
+        var valid = true;
+        var get = function (id) { return document.getElementById(id); };
+        var nameEl = get('name');
+        var phoneEl = get('phone');
+        var emailEl = get('email');
+        var pickupEl = get('pickup_address');
+        var destEl = get('destination');
+        var pickupAtEl = get('pickup_at');
+        var tripEl = get('trip_type');
+        var passengersEl = get('passengers');
+        var consentEl = get('privacy_consent');
+        if (!nameEl || !nameEl.value.trim()) { showError('name', s.formErrorRequired); valid = false; }
+        if (!phoneEl || !phoneEl.value.trim()) { showError('phone', s.formErrorRequired); valid = false; }
+        else if (!validatePhone(phoneEl.value)) { showError('phone', s.formErrorPhone); valid = false; }
+        if (!emailEl || !emailEl.value.trim()) { showError('email', s.formErrorRequired); valid = false; }
+        else if (!validateEmail(emailEl.value)) { showError('email', s.formErrorEmail); valid = false; }
+        if (!pickupEl || !pickupEl.value.trim()) { showError('pickup_address', s.formErrorRequired); valid = false; }
+        if (!destEl || !destEl.value.trim()) { showError('destination', s.formErrorRequired); valid = false; }
+        if (!pickupAtEl || !pickupAtEl.value) { showError('pickup_at', s.formErrorRequired); valid = false; }
+        else {
+          var now = new Date();
+          now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+          if (pickupAtEl.value <= now.toISOString().slice(0, 16)) { showError('pickup_at', s.formErrorDate); valid = false; }
+        }
+        if (!tripEl || !tripEl.value) { showError('trip_type', s.formErrorRequired); valid = false; }
+        if (!passengersEl) { showError('passengers', s.formErrorRequired); valid = false; }
+        else {
+          var passengers = parseInt(passengersEl.value, 10) || 0;
+          if (passengers < 1 || passengers > 8) { showError('passengers', s.formErrorRequired); valid = false; }
+        }
+        if (!consentEl || !consentEl.checked) { showError('privacy_consent', s.formErrorConsent); valid = false; }
+        if (!valid) return;
+        form.reset();
+        notice.style.display = 'block';
+        success.style.display = 'none';
+        notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    })();
+  </script>
+</Layout>

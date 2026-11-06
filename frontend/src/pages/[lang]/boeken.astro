@@ -1,0 +1,39 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+const phone = '{{COMPANY_PHONE}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.bookTitle} active="book">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.bookTitle}</h1>
+      <p>{s.bookIntro}</p>
+
+      <div class="card-grid">
+        <article class="card">
+          <h2>{s.bookCallTitle}</h2>
+          <p>{s.bookCallText}</p>
+          <a href={`tel:${phone}`} class="button button-primary" style="min-width:unset;">{s.callUs}</a>
+        </article>
+        <article class="card">
+          <h2>{s.bookEmailTitle}</h2>
+          <p>{s.bookEmailText}</p>
+          <a href={`/${lang}/ritaanvraag`} class="button button-secondary" style="min-width:unset;">{s.sendRequest}</a>
+        </article>
+      </div>
+    </div>
+  </section>
+</Layout>

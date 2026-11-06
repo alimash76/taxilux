@@ -1,0 +1,44 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.feedbackTitle} active="feedback">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.feedbackTitle}</h1>
+      <p>{s.feedbackIntro}</p>
+
+      <div class="card-grid">
+        <article class="card">
+          <h2>{s.termsTitle}</h2>
+          <p>{s.termsIntro}</p>
+          <p style="color:var(--color-error);font-size:var(--font-scale-small);">{s.termsPlaceholder}</p>
+          <a href={`/${lang}/klachtenformulier`} class="button" style="min-width:unset;">{s.complaintFormTitle}</a>
+        </article>
+        <article class="card">
+          <h2>{s.privacyTitle}</h2>
+          <p>{s.privacyIntro}</p>
+          <p style="color:var(--color-error);font-size:var(--font-scale-small);">{s.privacyPlaceholder}</p>
+        </article>
+        <article class="card">
+          <h2>{s.complaintsOverviewTitle}</h2>
+          <p>{s.complaintsOverviewIntro}</p>
+          <a href={`/${lang}/klachtenprocedure`} class="button" style="min-width:unset;">{s.complaintProcedureTitle}</a>
+        </article>
+      </div>
+    </div>
+  </section>
+</Layout>

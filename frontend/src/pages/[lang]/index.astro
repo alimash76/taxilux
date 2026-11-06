@@ -5,37 +5,64 @@ import { getStrings, type Lang } from '../../i18n';
 const { lang } = Astro.params as unknown as { lang: Lang };
 const s = getStrings(lang);
 
+const siteName = '{{COMPANY_NAME}}';
+const phone = '{{COMPANY_PHONE}}';
+const email = '{{COMPANY_EMAIL}}';
+
 export function getStaticPaths() {
   return [
     { params: { lang: 'nl' } },
     { params: { lang: 'en' } },
   ];
 }
-
-const siteName = '{{COMPANY_NAME}}';
-const tagline = '{{COMPANY_TAGLINE}}';
-const phone = '{{COMPANY_PHONE}}';
-const email = '{{COMPANY_EMAIL}}';
 ---
 
-<Layout lang={lang} title={tagline}>
-  <h1>{siteName}</h1>
-  <p>{tagline}</p>
-  <p>{s.placeholder}</p>
+<Layout lang={lang} title={s.homeServicesTitle} active="home">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName}</h1>
+      <p class="lead" style="font-size: 1.125rem;">{s.homeIntro}</p>
 
-  <nav class="cta-group" style="display:flex;flex-direction:column;gap:var(--space-s);margin-top:var(--space-l);">
-    <a
-      href={`tel:${phone}`}
-      class="button button-primary"
-      style="min-width:unset;padding:1rem 1.5rem;font-size:1.125rem;"
-    >
-      {s.callUs}
-    </a>
-    <a href="#" class="button" style="min-width:unset;padding:1rem 1.5rem;font-size:1.125rem;">
-      {s.sendRequest}
-    </a>
-    <p style="font-size:0.94rem;color:var(--color-text-secondary);margin-top:var(--space-s);">
-      {phone} · {email}
-    </p>
-  </nav>
+      <!-- Big "Request a ride" button above the fold -->
+      <div class="hero-cta">
+        <a href={`tel:${phone}`} class="button button-primary" style="min-width:unset;padding:1rem 1.5rem;font-size:1.125rem;">
+          {s.callUs}
+        </a>
+        <a href={`/${lang}/ritaanvraag`} class="button button-secondary" style="min-width:unset;padding:1rem 1.5rem;font-size:1.125rem;">
+          {s.sendRequest}
+        </a>
+        <p style="font-size:var(--font-scale-small);color:var(--color-text-secondary);margin-top:var(--space-s);">
+          {phone} · {email}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrapper">
+      <h2>{s.homeServicesTitle}</h2>
+      <p>{s.servicesIntro}</p>
+      <div class="card-grid">
+        <article class="card">
+          <h3>Stadsritten / lokale ritten</h3>
+          <p>Korte ritten binnen de stad en directe omgeving.</p>
+        </article>
+        <article class="card">
+          <h3>Luchthavenvervoer</h3>
+          <p>Betrouwbaar vervoer van en naar de luchthaven.</p>
+        </article>
+        <article class="card">
+          <h3>Zakelijk vervoer</h3>
+          <p>Vervoer met factuur voor bedrijven.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrapper">
+      <h2>{s.homeServiceAreaTitle}</h2>
+      <p>{s.homeServiceAreaText}</p>
+    </div>
+  </section>
 </Layout>
