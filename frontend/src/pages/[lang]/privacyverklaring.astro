@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.privacyTitle} active="feedback">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.privacyTitle}</h1>
+      <p>{s.privacyIntro}</p>
+      <p style="color:var(--color-error);font-size:var(--font-scale-small);">{s.privacyPlaceholder}</p>
+    </div>
+  </section>
+</Layout>

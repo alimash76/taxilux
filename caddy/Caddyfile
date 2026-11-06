@@ -2,7 +2,7 @@
     admin off
 }
 
-http://localhost {
+http://* {
     encode gzip zstd
 
     reverse_proxy /api/* backend:8080

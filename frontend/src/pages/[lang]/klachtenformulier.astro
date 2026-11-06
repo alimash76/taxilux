@@ -1,0 +1,120 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.complaintFormTitle} active="feedback">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.complaintFormTitle}</h1>
+      <p>{s.complaintFormIntro}</p>
+
+      <form id="complaint-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="name">{s.formNameLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="text" id="name" name="name" placeholder={s.formNamePlaceholder} required minlength="2" maxlength="100" />
+            <p class="error" id="error-name" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="email">{s.formEmailLabel} <span style="color:var(--color-error);">*</span></label>
+            <input type="email" id="email" name="email" placeholder={s.formEmailPlaceholder} required maxlength="200" />
+            <p class="error" id="error-email" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="phone">{s.formPhoneLabel}</label>
+            <input type="tel" id="phone" name="phone" placeholder={s.formPhonePlaceholder} maxlength="20" />
+            <p class="error" id="error-phone" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="ride_reference">Ritreferentie (optioneel)</label>
+            <input type="text" id="ride_reference" name="ride_reference" placeholder="Bijv. RR-2026-000123" maxlength="50" />
+            <p class="error" id="error-ride_reference" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="message">Bericht <span style="color:var(--color-error);">*</span></label>
+            <textarea id="message" name="message" required placeholder="Uw klacht" maxlength="2000"></textarea>
+            <p class="error" id="error-message" aria-live="polite"></p>
+          </div>
+          <div class="field consent">
+            <input type="checkbox" id="privacy_consent" name="privacy_consent" required />
+            <label for="privacy_consent">{s.formConsentLabel} <span style="color:var(--color-error);">*</span></label>
+            <p class="error" id="error-privacy_consent" aria-live="polite"></p>
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <button type="submit" class="button button-primary">{s.formSubmit}</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="form-notice" class="notice error" style="display:none;" role="alert" aria-live="assertive">
+        <p>{s.formNotConnected}</p>
+      </div>
+      <div id="form-success" class="notice success" style="display:none;" role="status" aria-live="polite">
+        <p>{s.formSuccess}</p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var form = document.getElementById('complaint-form');
+      var notice = document.getElementById('form-notice');
+      var success = document.getElementById('form-success');
+      if (!form || !notice || !success) return;
+      var fields = ['name', 'email', 'phone', 'ride_reference', 'message', 'privacy_consent'];
+
+      function showError(field, message) {
+        var err = document.getElementById('error-' + field);
+        var el = document.getElementById(field);
+        if (!el || !err) return;
+        el.classList.add('error');
+        err.textContent = message;
+      }
+      function clearError(field) {
+        var err = document.getElementById('error-' + field);
+        var el = document.getElementById(field);
+        if (!el || !err) return;
+        el.classList.remove('error');
+        err.textContent = '';
+      }
+      function clearAll() { fields.forEach(clearError); }
+      function validateEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        clearAll();
+        var valid = true;
+        var get = function (id) { return document.getElementById(id); };
+        var nameEl = get('name');
+        var emailEl = get('email');
+        var phoneEl = get('phone');
+        var messageEl = get('message');
+        var consentEl = get('privacy_consent');
+        if (!nameEl || !nameEl.value.trim()) { showError('name', s.formErrorRequired); valid = false; }
+        if (!emailEl || !emailEl.value.trim()) { showError('email', s.formErrorRequired); valid = false; }
+        else if (!validateEmail(emailEl.value)) { showError('email', s.formErrorEmail); valid = false; }
+        if (phoneEl && phoneEl.value.trim() && !/^[\d\s\+\(\)-]{6,}$/.test(phoneEl.value.replace(/\s/g, ''))) { showError('phone', s.formErrorPhone); valid = false; }
+        if (!messageEl || !messageEl.value.trim()) { showError('message', s.formErrorRequired); valid = false; }
+        if (!consentEl || !consentEl.checked) { showError('privacy_consent', s.formErrorConsent); valid = false; }
+        if (!valid) return;
+        form.reset();
+        notice.style.display = 'block';
+        success.style.display = 'none';
+        notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    })();
+  </script>
+</Layout>

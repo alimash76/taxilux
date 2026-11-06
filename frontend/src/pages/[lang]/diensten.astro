@@ -1,0 +1,52 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getStrings, type Lang } from '../../i18n';
+
+const { lang } = Astro.params as unknown as { lang: Lang };
+const s = getStrings(lang);
+
+const siteName = '{{COMPANY_NAME}}';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'nl' } },
+    { params: { lang: 'en' } },
+  ];
+}
+---
+
+<Layout lang={lang} title={s.servicesTitle} active="services">
+  <section class="section">
+    <div class="wrapper">
+      <h1>{siteName} — {s.servicesTitle}</h1>
+      <p>{s.servicesIntro}</p>
+
+      <h2>{s.servicesAreaTitle}</h2>
+      <p>{s.servicesAreaText}</p>
+
+      <h2>{s.servicesListTitle}</h2>
+      <div class="card-grid">
+        <article class="card">
+          <h3>Stadsritten / lokale ritten</h3>
+          <p>Korte ritten binnen de stad en directe omgeving.</p>
+        </article>
+        <article class="card">
+          <h3>Luchthavenvervoer</h3>
+          <p>Betrouwbaar vervoer van en naar de luchthaven.</p>
+        </article>
+        <article class="card">
+          <h3>Vooraf geboekte ritten</h3>
+          <p>Plan uw rit ruim van tevoren.</p>
+        </article>
+        <article class="card">
+          <h3>Zakelijk vervoer (contract)</h3>
+          <p>Vervoer met factuur voor bedrijven en organisaties.</p>
+        </article>
+        <article class="card">
+          <h3>Intercity / lange ritten</h3>
+          <p>Lange afstanden door heel Nederland.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</Layout>
